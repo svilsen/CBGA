@@ -31,8 +31,9 @@ public:
             const double & _s_mutation);
     
     // Functions
-    double calculate_fitness(const arma::colvec & parameters, const double & age, 
-                             const int & n_mutations);
+    double calculate_fitness(const arma::colvec & parameters);
+    double calculate_fitness_scaled(const double & fitness, const double & age,
+                                    const int & n_mutations);
 };
 
 
@@ -47,6 +48,7 @@ public:
     double age;
     
     double fitness;
+    double fitness_scaled;
     
     arma::colvec generate_random_chromosome(const int & N, RV & random_variate);
     
@@ -64,24 +66,22 @@ public:
 
 class Population 
 {
-private:
+public:
     // Objects
     int n_population;
     int n_genome;
     std::vector<int> n_chromosomes;
     
-public:
-    // Objects
     std::vector<Individual> p_active;
     std::vector<Individual> p_litter;
-    double inbreeding_coefficient;
+    double population_entropy;
     
     // Constructors
     Population(const int & _n_population, const int & _n_genome, 
                const std::vector<int> _n_chromosomes, 
                Fitness & _fitness, RV & _random_variate);
     
-    void update_inbreeding_coefficient();
+    void update_population_entropy();
 };
 
 

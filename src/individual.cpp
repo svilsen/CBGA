@@ -32,13 +32,18 @@ double Fitness::mutation_scaling(const int & n_mutations)
     return std::exp(-s_mutation * std::abs(r_standard));
 }
 
-double Fitness::calculate_fitness(const arma::colvec & parameters, const double & age, 
-                                  const int & n_mutations) 
+double Fitness::calculate_fitness(const arma::colvec & parameters) 
+{
+    double fitness = Rcpp::as<double>(f(parameters));
+    return fitness;
+}
+
+double Fitness::calculate_fitness_scaled(const double & fitness, const double & age,
+                                         const int & n_mutations) 
 {
     double age_s = age_scaling(age);
     double mutation_s = mutation_scaling(n_mutations);
-    double fitness = Rcpp::as<double>(f(parameters));
-    
+
     return age_s * mutation_s * fitness;
 }
 
@@ -57,12 +62,28 @@ Population::Population(const int & _n_population, const int & _n_genome,
         p_active[n] = individual;
     }
     
-    update_inbreeding_coefficient();
+    update_population_entropy();
 }
 
-void Population::update_inbreeding_coefficient()
+void Population::update_population_entropy()
 {
-    
+    population_entropy = 0.0;
+    for (int i = 0; i < n_genome; i++) 
+    {
+        const int & n_chromosomes_i = n_chromosomes[i];
+        for (int j = 0; j < n_chromosomes_i; j++)
+        {
+            double n_ij = 1.0;
+            for (int k = 0; k < n_population; k++) 
+            {
+                n_ij += p_active[k].chromosomes[i][j];
+            }
+            
+            const double p_ij = n_ij / (n_population + 1.0);
+            const double e_ij = -p_ij * std::log(p_ij);
+            population_entropy += e_ij;
+        }
+    }
 }
 
 //// Individual
@@ -94,7 +115,8 @@ Individual::Individual(const int & _n_genome, const std::vector<int> & _n_chromo
         parameters[n] = decode_chromosome(chromosome, l, u, N);
     }
     
-    fitness = _fitness.calculate_fitness(parameters, age, n_mutations);
+    fitness = _fitness.calculate_fitness(parameters);
+    fitness_scaled = _fitness.calculate_fitness_scaled(fitness, age, n_mutations);
 }
 
 arma::colvec Individual::generate_random_chromosome(const int & N, RV & random_variate) 
@@ -130,7 +152,8 @@ double Individual::decode_chromosome(const arma::colvec & x, const double & l, c
 }
 
 void Individual::decode_individual(Fitness & fitness, 
-                                   const std::vector<int> & n_chromosomes, const int & n_genome) 
+                                   const std::vector<int> & n_chromosomes, 
+                                   const int & n_genome) 
 {
     arma::colvec pars(n_genome);
     for (int n = 0; n < n_genome; n++) 

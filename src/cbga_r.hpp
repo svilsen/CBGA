@@ -18,16 +18,16 @@ private:
     double pi_recombination;
     double pi_mutation;
     
+    int n_lifetimes;
     bool trace;
-    
-    // Utility functions
-    void update_fitness(const int & n);
     
     // Selection functions
     
-    // Mutation
-    
     // Recombination
+    Individual recombine(const int & n1, const int & n2);
+    
+    // Mutation
+    void mutate();
     
     
 public:
@@ -35,12 +35,13 @@ public:
     Individual best_individual;
     
     // Constructors
-    CBGAR(const Fitness & _fitness, 
+    CBGAR(const int & _n_lifetimes, Fitness & _fitness, 
           const double & _pi_recombination, const double & _pi_mutation, 
           Population & _population, RV & _random_variate, const bool & _trace);
     
     // Functions
     void run();
+    Rcpp::List RListReturn();
 };
 
 #endif
