@@ -1,7 +1,6 @@
 #ifndef cbga_r_hpp
 #define cbga_r_hpp
 
-#include <Rcpp.h>
 #include <RcppArmadillo.h>
 
 #include "rv.hpp"
@@ -33,12 +32,12 @@ private:
     
 public:
     // Objects
-    individual best_individual;
+    Individual best_individual;
     
     // Constructors
     CBGAR(const Fitness & _fitness, 
           const double & _pi_recombination, const double & _pi_mutation, 
-          Population & _population, const RV & _random_variate, const bool & _trace;
+          Population & _population, RV & _random_variate, const bool & _trace);
     
     // Functions
     void run();

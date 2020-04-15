@@ -6,14 +6,14 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_01.hpp>
 
-class rv 
+class RV 
 { 
 public:
     boost::mt19937 rng;
     boost::random::uniform_01<> uniform_real;
     boost::variate_generator<boost::mt19937 &, boost::random::uniform_01<> > generate_uniform_real;
     
-    rv();
+    RV();
 };
 
 #endif

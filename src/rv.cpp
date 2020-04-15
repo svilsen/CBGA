@@ -1,4 +1,4 @@
-#include "RcppArmadillo.h"
+#include <RcppArmadillo.h>
 //[[Rcpp::depends(RcppArmadillo)]]
 
 #include <ctime>
@@ -9,5 +9,5 @@
 
 #include "rv.hpp"
 
-rv::rv() : 
+RV::RV() : 
     rng(std::time(0)), uniform_real(), generate_uniform_real(rng, uniform_real) { }
