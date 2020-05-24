@@ -5,18 +5,19 @@
 \title{Controlled Breeding Genetic Algorithm Control}
 \usage{
 cbga.control(
-  n_lifetimes = 100,
+  n_lifetime = 100,
   n_population = 100,
   n_chromosomes = NULL,
   pi_mutation = NULL,
   pi_recombination = NULL,
   s_age = 4,
   s_mutation = 1,
-  trace = TRUE
+  max_lifespan = 10,
+  trace = 0
 )
 }
 \arguments{
-\item{n_lifetimes}{The number of iterations of the genetic algorithm.}
+\item{n_lifetime}{The number of iterations of the genetic algorithm.}
 
 \item{n_population}{The number of individuals in both the active and inactive populations.}
 
@@ -30,11 +31,17 @@ cbga.control(
 
 \item{s_mutation}{A scaling factor for the effect of the number of mutations on the fitness (> 0).}
 
-\item{trace}{TRUE/FALSE: Should an internal trace of the genetic algorithm be shown?}
+\item{max_lifespan}{The maximum lifespan of an individual (0 < \code{max_lifespan} < \code{n_lifetime}).}
+
+\item{trace}{An integer between 0 and \code{n_lifetime}. If zero then trace is not shown. If larger than 0, then a trace is shown every \code{trace} iterations.}
 }
 \value{
 A list of parameters used for the \link{cbga}-function.
 }
 \description{
 \code{cbga.control} creates a list of all parameters needed to run the genetic algorithm.
+}
+\examples{
+cbga.control()
+
 }

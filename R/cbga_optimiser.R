@@ -2,41 +2,63 @@
 #' 
 #' @description \code{cbga.control} creates a list of all parameters needed to run the genetic algorithm. 
 #' 
-#' @param n_lifetimes The number of iterations of the genetic algorithm.
+#' @param n_lifetime The number of iterations of the genetic algorithm.
 #' @param n_population The number of individuals in both the active and inactive populations.
 #' @param n_chromosomes A vector assigning the length of the bitstrings (related to the precision of the optimisation).
 #' @param pi_mutation The probability of mutation.
 #' @param pi_recombination The probability of recombination.
 #' @param s_age A scaling factor for the effect of age on the fitness (> 0).
 #' @param s_mutation A scaling factor for the effect of the number of mutations on the fitness (> 0).
-#' @param trace TRUE/FALSE: Should an internal trace of the genetic algorithm be shown? 
+#' @param max_lifespan The maximum lifespan of an individual (0 < \code{max_lifespan} < \code{n_lifetime}).
+#' @param trace An integer between 0 and \code{n_lifetime}. If zero then trace is not shown. If larger than 0, then a trace is shown every \code{trace} iterations.
 #' 
 #' @return A list of parameters used for the \link{cbga}-function.
+#' @examples
+#' cbga.control()
+#' 
 #' @export
-cbga.control <- function(n_lifetimes = 100, n_population = 100, n_chromosomes = NULL, 
+cbga.control <- function(n_lifetime = 100, n_population = 100, n_chromosomes = NULL, 
                          pi_mutation = NULL, pi_recombination = NULL, 
-                         s_age = 4, s_mutation = 1, 
-                         trace = TRUE) {
-    if (is.null(n_lifetimes) || !is.numeric(n_lifetimes)) {
+                         s_age = 4, s_mutation = 1, max_lifespan = 10,
+                         trace = 0) {
+    if (is.null(n_lifetime) || !is.numeric(n_lifetime)) {
         s_age <- 100
     }
+    
     if (is.null(n_population) || !is.numeric(n_population)) {
         n_population <- 100
     }
+    
     if (is.null(s_age) || !is.numeric(s_age) || (s_age < 0)) {
         s_age <- 4
     }
+    
     if (is.null(s_mutation) || !is.numeric(s_mutation) || (s_mutation < 0)) {
         s_mutation <- 1
     }
-    if (is.null(trace) || !is.logical(trace)) {
-        trace <- FALSE
+    
+    if (is.null(max_lifespan)) {
+        max_lifespan <- round(n_lifetimes / 10)
+    }
+    if (max_lifespan < 1) {
+        warning("'max_lifespan' has to be larger than 0, and is, therefore, set to 1.")
+        max_lifespan <- 1
+    }
+    if (max_lifespan >= n_lifetime) {
+        warning("'max_lifespan' has to be smaller than 'n_lifetime', and is, therefore, set to 'n_lifetime' - 1.")
+        max_lifespan <- n_lifetime - 1
     }
     
-    list(n_lifetimes = n_lifetimes, n_population = n_population, n_chromosomes = n_chromosomes, 
-         pi_mutation = pi_mutation, pi_recombination = pi_recombination, 
-         s_age = s_age, s_mutation = s_mutation, 
-         trace = trace)
+    if (is.null(trace)) {
+        trace <- 0
+    }
+    
+    
+    control <- list(n_lifetime = n_lifetime, n_population = n_population, n_chromosomes = n_chromosomes, 
+                    pi_mutation = pi_mutation, pi_recombination = pi_recombination, 
+                    max_lifespan = max_lifespan, s_age = s_age, s_mutation = s_mutation, 
+                    trace = trace)
+    return(control)
 }
 
 #' @title Controlled Breeding Genetic Algorithm
@@ -52,6 +74,15 @@ cbga.control <- function(n_lifetimes = 100, n_population = 100, n_chromosomes = 
 #' @details The following breeding protocols...
 #' 
 #' @return The fittest individual found by the genetic algorithm.
+#' @examples 
+#' \dontrun{
+#' f <- function(x) exp(-x^2)
+#' lower <- -1
+#' upper <- 1
+#' 
+#' cbga(f, lower, upper)
+#' }
+#' 
 #' @export
 cbga <- function(f, lower, upper, bp_type = "proportional", ga_pars = list()) {
     ga_pars <- do.call(cbga.control, ga_pars)
@@ -75,21 +106,25 @@ cbga <- function(f, lower, upper, bp_type = "proportional", ga_pars = list()) {
     
     if (tolower(bp_type) %in% c("p", "prop", "proportional")) {
         res <- cbga_proportional(f = f, 
-                                 lower = lower, 
-                                 upper = upper, 
-                                 n_lifetimes = ga_pars$n_lifetimes, 
+                                 lower = matrix(lower, ncol = 1), 
+                                 upper = matrix(upper, ncol = 1), 
+                                 n_lifetime = ga_pars$n_lifetime, 
                                  n_population = ga_pars$n_population, 
-                                 n_chromosomes = ga_pars$n_chromosomes, 
+                                 n_chromosomes = matrix(ga_pars$n_chromosomes, ncol = 1), 
                                  pi_mutation = ga_pars$pi_mutation, 
                                  pi_recombination = ga_pars$pi_recombination, 
+                                 max_lifespan = ga_pars$max_lifespan,
                                  s_age = ga_pars$s_age, 
                                  s_mutation = ga_pars$s_mutation, 
                                  trace = ga_pars$trace)
     }
+    else if (tolower(bp_type) == "test") {
+        res <- NULL
+    }
     else {
         stop(paste0("The supplied breeding protocol '", bp_type ,"' is not a valid option. See details of '?cbga' for more information."))
     }
-
+    
     class(res) <- "cbga"
     return(res)
 }
@@ -98,6 +133,5 @@ cbga <- function(f, lower, upper, bp_type = "proportional", ga_pars = list()) {
 coef.cbga <- function(object, ...) {
     object$parameters
 }
-    
-    
-    
+
+

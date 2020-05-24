@@ -7,10 +7,9 @@
 
 //[[Rcpp::export()]]
 Rcpp::List cbga_proportional(Rcpp::Function & f, const arma::colvec & lower, const arma::colvec & upper, 
-                          const int & n_lifetimes, const int & n_population, const std::vector<int> n_chromosomes, 
-                          const double & pi_mutation, const double & pi_recombination, 
-                          const double & s_age, const double & s_mutation, 
-                          const bool & trace) 
+                             const int & n_lifetimes, const int & n_population, const std::vector<int> n_chromosomes, 
+                             const double & pi_mutation, const double & pi_recombination, const int & max_lifespan,
+                             const double & s_age, const double & s_mutation, const int & trace) 
 {
     //
     const int & n_genome = n_chromosomes.size();
@@ -24,7 +23,8 @@ Rcpp::List cbga_proportional(Rcpp::Function & f, const arma::colvec & lower, con
     
     //
     CBGAR CBGA(n_lifetimes, fitness, pi_recombination, pi_mutation,
-               population, random_variate, trace);
+               max_lifespan, population, random_variate, trace);
+    
     CBGA.run();
     
     //

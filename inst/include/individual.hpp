@@ -82,6 +82,7 @@ public:
                Fitness & _fitness, RV & _random_variate);
     
     void update_population_entropy();
+    arma::colvec accumulated_proportional_fitness(const std::vector<Individual> & p);
 };
 
 

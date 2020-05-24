@@ -18,16 +18,18 @@ private:
     double pi_recombination;
     double pi_mutation;
     
-    int n_lifetimes;
-    bool trace;
+    int max_lifespan;
+    int n_lifetime;
+    int trace;
     
-    // Selection functions
+    // Parent selection
+    Individual parent_selection(const arma::colvec & accumulated_fitness);
+
+    // Recombination and mutation
+    void recombine_mutate(Individual & C, const Individual & I1, const Individual & I2);
     
-    // Recombination
-    Individual recombine(const int & n1, const int & n2);
-    
-    // Mutation
-    void mutate();
+    // Litter selection
+    Individual litter_selection(const arma::colvec & accumulated_fitness);
     
     
 public:
@@ -35,9 +37,10 @@ public:
     Individual best_individual;
     
     // Constructors
-    CBGAR(const int & _n_lifetimes, Fitness & _fitness, 
+    CBGAR(const int & _n_lifetime, Fitness & _fitness, 
           const double & _pi_recombination, const double & _pi_mutation, 
-          Population & _population, RV & _random_variate, const bool & _trace);
+          const int & _max_lifespan, Population & _population, 
+          RV & _random_variate, const int & _trace);
     
     // Functions
     void run();

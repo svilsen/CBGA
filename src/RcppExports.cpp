@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // cbga_proportional
-Rcpp::List cbga_proportional(Rcpp::Function& f, const arma::colvec& lower, const arma::colvec& upper, const int& n_lifetimes, const int& n_population, const std::vector<int> n_chromosomes, const double& pi_mutation, const double& pi_recombination, const double& s_age, const double& s_mutation, const bool& trace);
-RcppExport SEXP _CBGA_cbga_proportional(SEXP fSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP n_lifetimesSEXP, SEXP n_populationSEXP, SEXP n_chromosomesSEXP, SEXP pi_mutationSEXP, SEXP pi_recombinationSEXP, SEXP s_ageSEXP, SEXP s_mutationSEXP, SEXP traceSEXP) {
+Rcpp::List cbga_proportional(Rcpp::Function& f, const arma::colvec& lower, const arma::colvec& upper, const int& n_lifetimes, const int& n_population, const std::vector<int> n_chromosomes, const double& pi_mutation, const double& pi_recombination, const int& max_lifespan, const double& s_age, const double& s_mutation, const int& trace);
+RcppExport SEXP _CBGA_cbga_proportional(SEXP fSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP n_lifetimesSEXP, SEXP n_populationSEXP, SEXP n_chromosomesSEXP, SEXP pi_mutationSEXP, SEXP pi_recombinationSEXP, SEXP max_lifespanSEXP, SEXP s_ageSEXP, SEXP s_mutationSEXP, SEXP traceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,16 +20,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::vector<int> >::type n_chromosomes(n_chromosomesSEXP);
     Rcpp::traits::input_parameter< const double& >::type pi_mutation(pi_mutationSEXP);
     Rcpp::traits::input_parameter< const double& >::type pi_recombination(pi_recombinationSEXP);
+    Rcpp::traits::input_parameter< const int& >::type max_lifespan(max_lifespanSEXP);
     Rcpp::traits::input_parameter< const double& >::type s_age(s_ageSEXP);
     Rcpp::traits::input_parameter< const double& >::type s_mutation(s_mutationSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type trace(traceSEXP);
-    rcpp_result_gen = Rcpp::wrap(cbga_proportional(f, lower, upper, n_lifetimes, n_population, n_chromosomes, pi_mutation, pi_recombination, s_age, s_mutation, trace));
+    Rcpp::traits::input_parameter< const int& >::type trace(traceSEXP);
+    rcpp_result_gen = Rcpp::wrap(cbga_proportional(f, lower, upper, n_lifetimes, n_population, n_chromosomes, pi_mutation, pi_recombination, max_lifespan, s_age, s_mutation, trace));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CBGA_cbga_proportional", (DL_FUNC) &_CBGA_cbga_proportional, 11},
+    {"_CBGA_cbga_proportional", (DL_FUNC) &_CBGA_cbga_proportional, 12},
     {NULL, NULL, 0}
 };
 

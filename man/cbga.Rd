@@ -26,3 +26,13 @@ The fittest individual found by the genetic algorithm.
 \details{
 The following breeding protocols...
 }
+\examples{
+\dontrun{
+f <- function(x) exp(-x^2)
+lower <- -1
+upper <- 1
+
+cbga(f, lower, upper)
+}
+
+}
