@@ -4,7 +4,7 @@
 #' 
 #' @param n_lifetime The number of iterations of the genetic algorithm.
 #' @param n_population The number of individuals in both the active and inactive populations.
-#' @param n_chromosomes A vector assigning the length of the bitstrings (related to the precision of the optimisation).
+#' @param n_chromosomes A vector setting the length of the bitstrings used for each individual (the length of the bitstrings relates to the precision of the optimisation).
 #' @param pi_mutation The probability of mutation.
 #' @param pi_recombination The probability of recombination.
 #' @param s_age A scaling factor for the effect of age on the fitness (> 0).
@@ -63,17 +63,19 @@ cbga.control <- function(n_lifetime = 100, n_population = 100, n_chromosomes = N
 
 #' @title Controlled Breeding Genetic Algorithm
 #' 
-#' @description \code{cbga} is a genetic algorithm used to fit box contrained univarite functions. The genetic algorithm utilises controlled breeding for a more efficient estimation.
+#' @description \code{cbga} is a genetic algorithm used to fit box constrained univariate functions. The genetic algorithm utilises controlled breeding for a more efficient estimation.
 #' 
-#' @param f The function to be optimised.
+#' @param f The function to be optimised by the algorithm.
 #' @param lower A vector of lower bounds.
 #' @param upper A vector of upper bounds.
-#' @param bp_type The breeding protocol used in the genetic algorithm. See details for more information.
-#' @param ga_pars A list of additional parameters used in the genetic algorithm. See \link{cbga.control} for more information.
+#' @param bp A string, or \link{bp}-object, defining the breeding protocol used in the genetic algorithm. See details for more information on allowed pre-sets supplied as strings, and \link{set_bp} for more information on possible breeding protocols.
+#' @param control A list of control parameters used in the genetic algorithm. See \link{cbga.control} for more information.
 #' 
 #' @details The following breeding protocols...
 #' 
-#' @return The fittest individual found by the genetic algorithm.
+#' @return The fittest individual found by the genetic algorithm, arranged in the list containing the following:
+#' 
+#' 
 #' @examples 
 #' \dontrun{
 #' f <- function(x) exp(-x^2)
@@ -84,8 +86,8 @@ cbga.control <- function(n_lifetime = 100, n_population = 100, n_chromosomes = N
 #' }
 #' 
 #' @export
-cbga <- function(f, lower, upper, bp_type = "proportional", ga_pars = list()) {
-    ga_pars <- do.call(cbga.control, ga_pars)
+cbga <- function(f, lower, upper, bp = "proportional", control = list()) {
+    ga_pars <- do.call(cbga.control, control)
     if (length(lower) != length(upper)) {
         stop("The 'lower' and 'upper' bounds have to be the same length.")
     }
@@ -104,7 +106,7 @@ cbga <- function(f, lower, upper, bp_type = "proportional", ga_pars = list()) {
         ga_pars$pi_recombination <- 1.0 / (sum(ga_pars$n_chromosomes))
     }
     
-    if (tolower(bp_type) %in% c("p", "prop", "proportional")) {
+    if (tolower(bp) %in% c("p", "prop", "proportional")) {
         res <- cbga_proportional(f = f, 
                                  lower = matrix(lower, ncol = 1), 
                                  upper = matrix(upper, ncol = 1), 
@@ -118,11 +120,8 @@ cbga <- function(f, lower, upper, bp_type = "proportional", ga_pars = list()) {
                                  s_mutation = ga_pars$s_mutation, 
                                  trace = ga_pars$trace)
     }
-    else if (tolower(bp_type) == "test") {
-        res <- NULL
-    }
     else {
-        stop(paste0("The supplied breeding protocol '", bp_type ,"' is not a valid option. See details of '?cbga' for more information."))
+        stop(paste0("The supplied breeding protocol is not a valid. See details of '?cbga' and '?set_bp' for more information."))
     }
     
     class(res) <- "cbga"

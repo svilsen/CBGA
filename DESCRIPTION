@@ -10,4 +10,4 @@ Encoding: UTF-8
 License: MIT + file LICENSE
 Imports: Rcpp (>= 1.0.4.6)
 LinkingTo: Rcpp, RcppArmadillo, BH
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

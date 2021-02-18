@@ -4,24 +4,24 @@
 \alias{cbga}
 \title{Controlled Breeding Genetic Algorithm}
 \usage{
-cbga(f, lower, upper, bp_type = "proportional", ga_pars = list())
+cbga(f, lower, upper, bp = "proportional", control = list())
 }
 \arguments{
-\item{f}{The function to be optimised.}
+\item{f}{The function to be optimised by the algorithm.}
 
 \item{lower}{A vector of lower bounds.}
 
 \item{upper}{A vector of upper bounds.}
 
-\item{bp_type}{The breeding protocol used in the genetic algorithm. See details for more information.}
+\item{bp}{A string, or \link{bp}-object, defining the breeding protocol used in the genetic algorithm. See details for more information on allowed pre-sets supplied as strings, and \link{set_bp} for more information on possible breeding protocols.}
 
-\item{ga_pars}{A list of additional parameters used in the genetic algorithm. See \link{cbga.control} for more information.}
+\item{control}{A list of control parameters used in the genetic algorithm. See \link{cbga.control} for more information.}
 }
 \value{
-The fittest individual found by the genetic algorithm.
+The fittest individual found by the genetic algorithm, arranged in the list containing the following:
 }
 \description{
-\code{cbga} is a genetic algorithm used to fit box contrained univarite functions. The genetic algorithm utilises controlled breeding for a more efficient estimation.
+\code{cbga} is a genetic algorithm used to fit box constrained univariate functions. The genetic algorithm utilises controlled breeding for a more efficient estimation.
 }
 \details{
 The following breeding protocols...

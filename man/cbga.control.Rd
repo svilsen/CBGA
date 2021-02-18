@@ -21,7 +21,7 @@ cbga.control(
 
 \item{n_population}{The number of individuals in both the active and inactive populations.}
 
-\item{n_chromosomes}{A vector assigning the length of the bitstrings (related to the precision of the optimisation).}
+\item{n_chromosomes}{A vector setting the length of the bitstrings used for each individual (the length of the bitstrings relates to the precision of the optimisation).}
 
 \item{pi_mutation}{The probability of mutation.}
 
