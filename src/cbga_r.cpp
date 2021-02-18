@@ -6,10 +6,16 @@
 #include "cbga_r.hpp"
 
 // Constructor
-CBGAR::CBGAR(const int & _n_lifetime, Fitness & _fitness, 
-             const double & _pi_recombination, const double & _pi_mutation,
-             const int & _max_lifespan, Population & _population, 
-             RV & _random_variate, const int & _trace) :
+CBGAR::CBGAR(
+    const int & _n_lifetime, 
+    Fitness & _fitness,
+    const double & _pi_recombination, 
+    const double & _pi_mutation,
+    const int & _max_lifespan, 
+    Population & _population,
+    RV & _random_variate, 
+    const int & _trace
+) :
     n_lifetime(_n_lifetime), fitness(_fitness), 
     pi_recombination(_pi_recombination), pi_mutation(_pi_mutation),
     max_lifespan(_max_lifespan), population(_population), 
@@ -28,8 +34,9 @@ CBGAR::CBGAR(const int & _n_lifetime, Fitness & _fitness,
 }
 
 
-Individual CBGAR::parent_selection(const arma::colvec & accumulated_fitness) 
-{
+Individual CBGAR::parent_selection(
+        const arma::colvec & accumulated_fitness
+) {
     const double & u = random_variate.generate_uniform_real();
     
     int n = 0;
@@ -41,8 +48,9 @@ Individual CBGAR::parent_selection(const arma::colvec & accumulated_fitness)
     return population.p_active[n];
 }
 
-Individual CBGAR::litter_selection(const arma::colvec & accumulated_fitness) 
-{
+Individual CBGAR::litter_selection(
+        const arma::colvec & accumulated_fitness
+) {
     const double & u = random_variate.generate_uniform_real();
     
     int n = 0;
@@ -54,8 +62,11 @@ Individual CBGAR::litter_selection(const arma::colvec & accumulated_fitness)
     return population.p_litter[n];
 }
 
-void CBGAR::recombine_mutate(Individual & C, const Individual & I1, const Individual & I2) 
-{
+void CBGAR::recombine_mutate(
+        Individual & C, 
+        const Individual & I1, 
+        const Individual & I2
+) {
     int k = 0;
     std::vector<Individual> IA{I1, I2};
     if (I1.fitness_scaled < I2.fitness_scaled) 
@@ -100,7 +111,9 @@ void CBGAR::run()
     for (int n = 0; n < n_lifetime; n++) 
     {
         // Update active accumulated proportional fitness
-        arma::colvec accumulated_fitness_active = population.accumulated_proportional_fitness(population.p_active);
+        arma::colvec accumulated_fitness_active = population.accumulated_proportional_fitness(
+            population.p_active
+        );
         
         // Update litter population
         for (int m = 0; m < M; m++) 
@@ -109,21 +122,45 @@ void CBGAR::run()
             Individual C = population.p_litter[m];
             
             //
-            Individual I1 = parent_selection(accumulated_fitness_active);
-            Individual I2 = parent_selection(accumulated_fitness_active);
+            Individual I1 = parent_selection(
+                accumulated_fitness_active
+            );
+            
+            Individual I2 = parent_selection(
+                accumulated_fitness_active
+            );
             
             //
-            recombine_mutate(C, I1, I2);
+            recombine_mutate(
+                C, 
+                I1, 
+                I2
+            );
 
             //
-            C.decode_individual(fitness, population.n_chromosomes, population.n_genome);
-            C.fitness = fitness.calculate_fitness(C.parameters);
-            C.fitness_scaled = fitness.calculate_fitness_scaled(C.fitness, C.age, C.n_mutations);
+            C.decode_individual(
+                fitness, 
+                population.n_chromosomes, 
+                population.n_genome
+            );
+            
+            C.fitness = fitness.calculate_fitness(
+                C.parameters
+            );
+            
+            C.fitness_scaled = fitness.calculate_fitness_scaled(
+                C.fitness, 
+                C.age, 
+                C.n_mutations
+            );
+            
             population.p_litter[m] = C;
         }
         
         // Update active accumulated proportional fitness
-        arma::colvec accumulated_fitness_litter = population.accumulated_proportional_fitness(population.p_litter);
+        arma::colvec accumulated_fitness_litter = population.accumulated_proportional_fitness(
+            population.p_litter
+        );
         
         // Update active population, and best individual
         Individual active_best_individual;
@@ -143,11 +180,17 @@ void CBGAR::run()
             if (u > pi_new_age) 
             {
                 I.age = new_age;
-                I.fitness_scaled = fitness.calculate_fitness_scaled(I.fitness, I.age, I.n_mutations);
+                I.fitness_scaled = fitness.calculate_fitness_scaled(
+                    I.fitness, 
+                    I.age, 
+                    I.n_mutations
+                );
             }
             else 
             {
-                I = litter_selection(accumulated_fitness_litter);
+                I = litter_selection(
+                    accumulated_fitness_litter
+                );
             }
             
             population.p_active[m] = I;

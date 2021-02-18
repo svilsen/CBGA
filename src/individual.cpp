@@ -6,15 +6,28 @@
 
 //// Fitness
 // Constructor
-Fitness::Fitness(Rcpp::Function & _f, const arma::colvec & _lower, const arma::colvec & _upper, 
-                 const double & _s_age, const double & _pi_mutation, const double & _e_mutation, 
-                 const double & _s_mutation) : 
-    f(_f), lower(_lower), upper(_upper), s_age(_s_age), 
-    pi_mutation(_pi_mutation), e_mutation(_e_mutation), s_mutation(_s_mutation) { }
+Fitness::Fitness(
+    Rcpp::Function & _f, 
+    const arma::colvec & _lower, 
+    const arma::colvec & _upper, 
+    const double & _s_age, 
+    const double & _pi_mutation, 
+    const double & _e_mutation,
+    const double & _s_mutation
+) : 
+    f(_f), 
+    lower(_lower), 
+    upper(_upper), 
+    s_age(_s_age), 
+    pi_mutation(_pi_mutation),
+    e_mutation(_e_mutation),
+    s_mutation(_s_mutation) 
+{ }
 
 // Functions
-double Fitness::age_scaling(const double & age)
-{
+double Fitness::age_scaling(
+        const double & age
+) {
     double age_scaled = s_age * age * (1.0 - age);
     if (age_scaled > 1.0) 
     {
@@ -24,44 +37,61 @@ double Fitness::age_scaling(const double & age)
     return age_scaled;
 }
 
-double Fitness::mutation_scaling(const int & n_mutations)
-{
+double Fitness::mutation_scaling(
+        const int & n_mutations
+) {
     double v = std::pow(pi_mutation * (1.0 - pi_mutation), 0.5);
     double r_standard = (n_mutations - e_mutation) / v;
     
     return std::exp(-s_mutation * std::abs(r_standard));
 }
 
-double Fitness::calculate_fitness(const arma::colvec & parameters) 
-{
+double Fitness::calculate_fitness(
+        const arma::colvec & parameters
+) {
     double fitness = Rcpp::as<double>(f(parameters));
     return fitness;
 }
 
-double Fitness::calculate_fitness_scaled(const double & fitness, const double & age,
-                                         const int & n_mutations) 
-{
+double Fitness::calculate_fitness_scaled(
+        const double & fitness, 
+        const double & age, 
+        const int & n_mutations
+) {
     double age_s = age_scaling(age);
     double mutation_s = mutation_scaling(n_mutations);
-
+    
     return age_s * mutation_s * fitness;
 }
 
 
 //// Population 
 // Constructor
-Population::Population(const int & _n_population, const int & _n_genome, 
-                       const std::vector<int> _n_chromosomes, 
-                       Fitness & _fitness, RV & _random_variate) :
-    n_population(_n_population), n_genome(_n_genome), n_chromosomes(_n_chromosomes)
+Population::Population(
+    const int & _n_population, 
+    const int & _n_genome,
+    const std::vector<int> _n_chromosomes,
+    Fitness & _fitness, 
+    RV & _random_variate
+) :
+    n_population(_n_population), 
+    n_genome(_n_genome),
+    n_chromosomes(_n_chromosomes)
 {
     p_active = std::vector<Individual>(n_population);
     p_litter = std::vector<Individual>(n_population);
     
     for (int n = 0; n < n_population; n++) 
     {
-        Individual individual(n_genome, n_chromosomes, _fitness, _random_variate);
+        Individual individual(
+                n_genome, 
+                n_chromosomes, 
+                _fitness, 
+                _random_variate
+        );
+        
         p_active[n] = individual;
+        
         p_litter[n] = individual;
     }
     
@@ -89,9 +119,13 @@ void Population::update_population_entropy()
     }
 }
 
-arma::colvec Population::accumulated_proportional_fitness(const std::vector<Individual> & p)
-{
-    arma::colvec accumulated_fitness(n_population);
+arma::colvec Population::accumulated_proportional_fitness(
+        const std::vector<Individual> & p
+) {
+    arma::colvec accumulated_fitness(
+            n_population
+    );
+    
     accumulated_fitness[0] = p[0].fitness_scaled;
     for (int n = 1; n < n_population; n++)
     {
@@ -111,9 +145,12 @@ Individual::Individual()
     fitness = -HUGE_VAL;
 }
 
-Individual::Individual(const int & _n_genome, const std::vector<int> & _n_chromosomes, 
-                       Fitness & _fitness, RV & _random_variate) 
-{
+Individual::Individual(
+    const int & _n_genome, 
+    const std::vector<int> & _n_chromosomes,
+    Fitness & _fitness, 
+    RV & _random_variate
+) {
     n_mutations = 0;
     age = 0.0;
     
@@ -122,21 +159,40 @@ Individual::Individual(const int & _n_genome, const std::vector<int> & _n_chromo
     for (int n = 0; n < _n_genome; n++)
     {
         const int & N = _n_chromosomes[n];
-        arma::colvec chromosome = generate_random_chromosome(N, _random_variate);
+        
+        arma::colvec chromosome = generate_random_chromosome(
+            N, 
+            _random_variate
+        );
+        
         chromosomes[n] = chromosome;
         
         const double & l = _fitness.lower[n];
         const double & u = _fitness.upper[n];
         
-        parameters[n] = decode_chromosome(chromosome, l, u, N);
+        parameters[n] = decode_chromosome(
+            chromosome, 
+            l, 
+            u, 
+            N
+        );
     }
     
-    fitness = _fitness.calculate_fitness(parameters);
-    fitness_scaled = _fitness.calculate_fitness_scaled(fitness, age, n_mutations);
+    fitness = _fitness.calculate_fitness(
+        parameters
+    );
+    
+    fitness_scaled = _fitness.calculate_fitness_scaled(
+        fitness, 
+        age, 
+        n_mutations
+    );
 }
 
-arma::colvec Individual::generate_random_chromosome(const int & N, RV & random_variate) 
-{
+arma::colvec Individual::generate_random_chromosome(
+        const int & N, 
+        RV & random_variate
+) {
     arma::colvec c(N);
     for (int n = 0; n < N; n++)
     {
@@ -153,8 +209,12 @@ arma::colvec Individual::generate_random_chromosome(const int & N, RV & random_v
     return c;
 }
 
-double Individual::decode_chromosome(const arma::colvec & x, const double & l, const double & u, const int & N) 
-{
+double Individual::decode_chromosome(
+        const arma::colvec & x, 
+        const double & l, 
+        const double & u, 
+        const int & N
+) {
     double sum = 0.0;
     for (int n = 0; n < N; n++) 
     {
@@ -171,16 +231,20 @@ double Individual::decode_chromosome(const arma::colvec & x, const double & l, c
     return d;
 }
 
-void Individual::decode_individual(Fitness & fitness, 
-                                   const std::vector<int> & n_chromosomes, 
-                                   const int & n_genome) 
-{
+void Individual::decode_individual(
+        Fitness & fitness,
+        const std::vector<int> & n_chromosomes,
+        const int & n_genome
+) {
     arma::colvec pars(n_genome);
     for (int n = 0; n < n_genome; n++) 
     {
-        pars[n] = decode_chromosome(chromosomes[n], 
-                                    fitness.lower[n], fitness.upper[n],
-                                    n_chromosomes[n]); 
+        pars[n] = decode_chromosome(
+            chromosomes[n], 
+            fitness.lower[n], 
+            fitness.upper[n],
+            n_chromosomes[n]
+        ); 
     }
     
     parameters = pars;

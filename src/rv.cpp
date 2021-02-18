@@ -9,5 +9,4 @@
 
 #include "rv.hpp"
 
-RV::RV() : 
-    rng(std::time(0)), uniform_real(), generate_uniform_real(rng, uniform_real) { }
+RV::RV() : rng(std::time(0)), uniform_real(), generate_uniform_real(rng, uniform_real) { }

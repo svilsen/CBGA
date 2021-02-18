@@ -17,10 +17,17 @@
 #' cbga.control()
 #' 
 #' @export
-cbga.control <- function(n_lifetime = 100, n_population = 100, n_chromosomes = NULL, 
-                         pi_mutation = NULL, pi_recombination = NULL, 
-                         s_age = 4, s_mutation = 1, max_lifespan = 10,
-                         trace = 0) {
+cbga.control <- function(
+    n_lifetime = 100, 
+    n_population = 100, 
+    n_chromosomes = NULL,
+    pi_mutation = NULL, 
+    pi_recombination = NULL,
+    s_age = 4, 
+    s_mutation = 1, 
+    max_lifespan = 10,
+    trace = 0
+) {
     if (is.null(n_lifetime) || !is.numeric(n_lifetime)) {
         s_age <- 100
     }
@@ -86,7 +93,13 @@ cbga.control <- function(n_lifetime = 100, n_population = 100, n_chromosomes = N
 #' }
 #' 
 #' @export
-cbga <- function(f, lower, upper, bp = "proportional", control = list()) {
+cbga <- function(
+    f, 
+    lower, 
+    upper, 
+    bp = "proportional", 
+    control = list()
+) {
     ga_pars <- do.call(cbga.control, control)
     if (length(lower) != length(upper)) {
         stop("The 'lower' and 'upper' bounds have to be the same length.")
@@ -129,7 +142,10 @@ cbga <- function(f, lower, upper, bp = "proportional", control = list()) {
 }
 
 #' @export
-coef.cbga <- function(object, ...) {
+coef.cbga <- function(
+    object, 
+    ...
+) {
     object$parameters
 }
 

@@ -3,6 +3,9 @@
 
 #include <Rcpp.h>
 
-int std_vector_sum(const std::vector<int> & x, const int & N) ;
+int std_vector_sum(
+        const std::vector<int> & x, 
+        const int & N
+);
 
 #endif
