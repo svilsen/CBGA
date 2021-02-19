@@ -10,18 +10,12 @@ Fitness::Fitness(
     Rcpp::Function & _f, 
     const arma::colvec & _lower, 
     const arma::colvec & _upper, 
-    const double & _s_age, 
-    const double & _pi_mutation, 
-    const double & _e_mutation,
-    const double & _s_mutation
+    const double & _s_age
 ) : 
     f(_f), 
     lower(_lower), 
     upper(_upper), 
-    s_age(_s_age), 
-    pi_mutation(_pi_mutation),
-    e_mutation(_e_mutation),
-    s_mutation(_s_mutation) 
+    s_age(_s_age)
 { }
 
 // Functions
@@ -37,15 +31,6 @@ double Fitness::age_scaling(
     return age_scaled;
 }
 
-double Fitness::mutation_scaling(
-        const int & n_mutations
-) {
-    double v = std::pow(pi_mutation * (1.0 - pi_mutation), 0.5);
-    double r_standard = (n_mutations - e_mutation) / v;
-    
-    return std::exp(-s_mutation * std::abs(r_standard));
-}
-
 double Fitness::calculate_fitness(
         const arma::colvec & parameters
 ) {
@@ -55,33 +40,67 @@ double Fitness::calculate_fitness(
 
 double Fitness::calculate_fitness_scaled(
         const double & fitness, 
-        const double & age, 
-        const int & n_mutations
+        const double & age
 ) {
     double age_s = age_scaling(age);
-    double mutation_s = mutation_scaling(n_mutations);
     
-    return age_s * mutation_s * fitness;
+    return age_s * fitness;
 }
 
 
-//// Population 
-// Constructor
-Population::Population(
+//// TotalPopulation
+// Constructors
+TotalPopulation::TotalPopulation(
     const int & _n_population, 
+    const int & _n_subpopulation,
+    const int & _n_genome, 
+    const std::vector<int> _n_chromosomes, 
+    Fitness & _fitness, 
+    RV & _random_variate
+) :
+    n_population(_n_population)
+{
+    populations = std::vector<SubPopulation>(n_population);
+    for (int n = 0; n < n_population; n++) 
+    {
+        SubPopulation sub_population(
+                _n_subpopulation, 
+                _n_genome,
+                _n_chromosomes,
+                _fitness, 
+                _random_variate
+        );
+    }
+}
+
+// Functions
+void TotalPopulation::update_population_entropy() 
+{
+    average_population_entropy = 0.0;
+    for (int n = 0; n < n_population; n++) 
+    {
+        const double population_entropy_n = populations[n].population_entropy / n_population;
+        average_population_entropy += population_entropy_n;
+    }
+}
+
+//// SubPopulation 
+// Constructors
+SubPopulation::SubPopulation() { };
+
+SubPopulation::SubPopulation(
+    const int & _n_subpopulation, 
     const int & _n_genome,
     const std::vector<int> _n_chromosomes,
     Fitness & _fitness, 
     RV & _random_variate
 ) :
-    n_population(_n_population), 
+    n_subpopulation(_n_subpopulation), 
     n_genome(_n_genome),
     n_chromosomes(_n_chromosomes)
 {
-    p_active = std::vector<Individual>(n_population);
-    p_litter = std::vector<Individual>(n_population);
-    
-    for (int n = 0; n < n_population; n++) 
+    individuals = std::vector<Individual>(n_subpopulation);
+    for (int n = 0; n < n_subpopulation; n++) 
     {
         Individual individual(
                 n_genome, 
@@ -90,15 +109,14 @@ Population::Population(
                 _random_variate
         );
         
-        p_active[n] = individual;
-        
-        p_litter[n] = individual;
+        individuals[n] = individual;
     }
     
     update_population_entropy();
 }
 
-void Population::update_population_entropy()
+// Functions
+void SubPopulation::update_population_entropy()
 {
     population_entropy = 0.0;
     for (int i = 0; i < n_genome; i++) 
@@ -107,40 +125,36 @@ void Population::update_population_entropy()
         for (int j = 0; j < n_chromosomes_i; j++)
         {
             double n_ij = 1.0;
-            for (int k = 0; k < n_population; k++) 
+            for (int k = 0; k < n_subpopulation; k++) 
             {
-                n_ij += p_active[k].chromosomes[i][j];
+                n_ij += individuals[k].chromosomes[i][j];
             }
             
-            const double p_ij = n_ij / (n_population + 1.0);
+            const double p_ij = n_ij / (n_subpopulation + 1.0);
             const double e_ij = -p_ij * std::log(p_ij);
             population_entropy += e_ij;
         }
     }
 }
 
-arma::colvec Population::accumulated_proportional_fitness(
+arma::colvec SubPopulation::accumulated_proportional_fitness(
         const std::vector<Individual> & p
 ) {
-    arma::colvec accumulated_fitness(
-            n_population
-    );
+    arma::colvec accumulated_fitness(n_subpopulation);
     
     accumulated_fitness[0] = p[0].fitness_scaled;
-    for (int n = 1; n < n_population; n++)
+    for (int n = 1; n < n_subpopulation; n++)
     {
         accumulated_fitness[n] = accumulated_fitness[n - 1] + p[n].fitness_scaled;
     }
     
-    return accumulated_fitness / accumulated_fitness[n_population - 1];
+    return accumulated_fitness / accumulated_fitness[n_subpopulation - 1];
 }
 
 //// Individual
 // Constrctors
 Individual::Individual() 
 {
-    n_mutations = 0;
-    
     age = 0.0;
     fitness = -HUGE_VAL;
 }
@@ -151,7 +165,6 @@ Individual::Individual(
     Fitness & _fitness, 
     RV & _random_variate
 ) {
-    n_mutations = 0;
     age = 0.0;
     
     chromosomes = std::vector<arma::colvec>(_n_genome);
@@ -184,11 +197,11 @@ Individual::Individual(
     
     fitness_scaled = _fitness.calculate_fitness_scaled(
         fitness, 
-        age, 
-        n_mutations
+        age
     );
 }
 
+// Functions
 arma::colvec Individual::generate_random_chromosome(
         const int & N, 
         RV & random_variate

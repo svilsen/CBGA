@@ -12,18 +12,21 @@ private:
     // Objects
     Fitness fitness;
     
-    Population population;
+    TotalPopulation donors;
+    TotalPopulation breeders;
+    TotalPopulation litter;
+    
     RV random_variate;
     
     double pi_recombination;
     double pi_mutation;
     
     int max_lifespan;
-    int n_lifetime;
+    int max_generations;
     int trace;
     
-    // Parent selection
-    Individual parent_selection(
+    // Selecting breeder for doner
+    Individual breeder_selection(
             const arma::colvec & accumulated_fitness
     );
     
@@ -34,30 +37,32 @@ private:
             const Individual & I2
     );
     
-    // Litter selection
-    Individual litter_selection(
-            const arma::colvec & accumulated_fitness
-    );
+    // Updating
+    void update_donors();
+    void update_breeders();
+    void update_litter();
     
     
 public:
     // Objects
-    Individual best_individual;
+    Individual super_individual;
     
     // Constructors
     CBGAR(
-        const int & _n_lifetime, 
+        const int & _max_generations, 
         Fitness & _fitness,
         const double & _pi_recombination, 
         const double & _pi_mutation, 
         const int & _max_lifespan, 
-        Population & _population,
+        TotalPopulation & _donors,
+        TotalPopulation & _breeders,
+        TotalPopulation & _litter,
         RV & _random_variate, 
         const int & _trace
     );
     
     // Functions
-    void run();
+    void Run();
     Rcpp::List RListReturn();
 };
 

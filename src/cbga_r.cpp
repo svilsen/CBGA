@@ -7,33 +7,41 @@
 
 // Constructor
 CBGAR::CBGAR(
-    const int & _n_lifetime, 
+    const int & _max_generations, 
     Fitness & _fitness,
     const double & _pi_recombination, 
-    const double & _pi_mutation,
+    const double & _pi_mutation, 
     const int & _max_lifespan, 
-    Population & _population,
+    TotalPopulation & _donors,
+    TotalPopulation & _breeders,
+    TotalPopulation & _litter,
     RV & _random_variate, 
     const int & _trace
 ) :
-    n_lifetime(_n_lifetime), fitness(_fitness), 
-    pi_recombination(_pi_recombination), pi_mutation(_pi_mutation),
-    max_lifespan(_max_lifespan), population(_population), 
-    random_variate(_random_variate), trace(_trace) 
+    max_generations(_max_generations), 
+    fitness(_fitness), 
+    pi_recombination(_pi_recombination), 
+    pi_mutation(_pi_mutation),
+    max_lifespan(_max_lifespan), 
+    donors(_donors), 
+    breeders(_breeders), 
+    litter(_litter), 
+    random_variate(_random_variate), 
+    trace(_trace) 
 {
-    best_individual = population.p_active[0];
-    const int & M = population.n_population;
+    super_individual = donors.individuals[0];
+    const int & M = donors.n_subpopulation;
     for (int m = 1; m < M; m++)
     {
-        Individual I = population.p_active[m];
-        if (I.fitness > best_individual.fitness) 
+        Individual I = donors.individuals[m];
+        if (I.fitness > super_individual.fitness) 
         {
-            best_individual = I;
+            super_individual = I;
         }
     }
 }
 
-
+// Private functions
 Individual CBGAR::parent_selection(
         const arma::colvec & accumulated_fitness
 ) {
@@ -104,7 +112,7 @@ void CBGAR::recombine_mutate(
 }
 
 
-// Public
+// Public functions
 void CBGAR::run()
 {
     const int & M = population.n_population;
@@ -136,7 +144,7 @@ void CBGAR::run()
                 I1, 
                 I2
             );
-
+            
             //
             C.decode_individual(
                 fitness, 

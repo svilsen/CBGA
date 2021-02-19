@@ -12,17 +12,9 @@ private:
     
     double s_age;
     
-    double pi_mutation;
-    double e_mutation;
-    double s_mutation;
-    
     // Functions
     double age_scaling(
             const double & age
-    );
-    
-    double mutation_scaling(
-            const int & n_mutations
     );
     
 public:
@@ -35,10 +27,7 @@ public:
         Rcpp::Function & _f, 
         const arma::colvec & _lower, 
         const arma::colvec & _upper, 
-        const double & _s_age, 
-        const double & _pi_mutation, 
-        const double & _e_mutation, 
-        const double & _s_mutation
+        const double & _s_age
     );
     
     // Functions
@@ -48,8 +37,7 @@ public:
     
     double calculate_fitness_scaled(
             const double & fitness, 
-            const double & age,
-            const int & n_mutations
+            const double & age
     );
 };
 
@@ -67,6 +55,7 @@ public:
     double fitness;
     double fitness_scaled;
     
+    // Functions
     arma::colvec generate_random_chromosome(
             const int & N, RV & random_variate
     );
@@ -80,6 +69,7 @@ public:
         RV & _random_variate
     );
     
+    // Functions
     double decode_chromosome(
             const arma::colvec & x,
             const double & l, 
@@ -94,20 +84,44 @@ public:
 };
 
 
-class Population 
+class SubPopulation 
+{
+public:
+    // Objects
+    int n_subpopulation;
+    int n_genome;
+    std::vector<int> n_chromosomes;
+    
+    std::vector<Individual> individuals;
+    double population_entropy;
+    
+    // Constructors
+    SubPopulation();
+    SubPopulation(
+        const int & _n_subpopulation, 
+        const int & _n_genome, 
+        const std::vector<int> _n_chromosomes, 
+        Fitness & _fitness, RV & _random_variate
+    );
+    
+    // Functions
+    void update_population_entropy();
+    arma::colvec accumulated_proportional_fitness(
+            const std::vector<Individual> & p
+    );
+};
+
+class TotalPopulation 
 {
 public:
     // Objects
     int n_population;
-    int n_genome;
-    std::vector<int> n_chromosomes;
     
-    std::vector<Individual> p_active;
-    std::vector<Individual> p_litter;
-    double population_entropy;
+    std::vector<SubPopulation> populations;
+    double average_population_entropy;
     
     // Constructors
-    Population(
+    TotalPopulation(
         const int & _n_population, 
         const int & _n_genome, 
         const std::vector<int> _n_chromosomes, 
@@ -115,9 +129,6 @@ public:
     );
     
     void update_population_entropy();
-    arma::colvec accumulated_proportional_fitness(
-            const std::vector<Individual> & p
-    );
 };
 
 

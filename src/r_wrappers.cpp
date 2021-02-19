@@ -10,14 +10,13 @@ Rcpp::List cbga_proportional(
         Rcpp::Function & f, 
         const arma::colvec & lower, 
         const arma::colvec & upper,
-        const int & n_lifetimes, 
-        const int & n_population, 
+        const int & max_generations, 
+        const std::vector<int> & n_subpopulation, 
         const std::vector<int> n_chromosomes,
         const double & pi_mutation, 
         const double & pi_recombination, 
         const int & max_lifespan,
         const double & s_age, 
-        const double & s_mutation, 
         const int & trace
 ) {
     //
@@ -28,8 +27,6 @@ Rcpp::List cbga_proportional(
         n_genome
     );
     
-    const double & e_mutation = pi_mutation * n_total;
-    
     //
     RV random_variate;
     
@@ -37,14 +34,27 @@ Rcpp::List cbga_proportional(
             f,
             lower, 
             upper, 
-            s_age, 
-            pi_mutation, 
-            e_mutation, 
-            s_mutation
+            s_age
     );
     
-    Population population(
-            n_population, 
+    TotalPopulation donors(
+            n_population[0], 
+            n_genome, 
+            n_chromosomes, 
+            fitness, 
+            random_variate
+    );
+    
+    TotalPopulation breeders(
+            n_population[1], 
+            n_genome, 
+            n_chromosomes, 
+            fitness, 
+            random_variate
+    );
+    
+    TotalPopulation litter(
+            n_population[1], 
             n_genome, 
             n_chromosomes, 
             fitness, 
@@ -53,19 +63,22 @@ Rcpp::List cbga_proportional(
     
     //
     CBGAR CBGA(
-            n_lifetimes, 
+            max_generations, 
             fitness, 
             pi_recombination, 
             pi_mutation,
             max_lifespan, 
-            population, 
+            donors, 
+            breeders, 
+            litter,
             random_variate, 
             trace
     );
     
-    CBGA.run();
+    CBGA.Run();
     
     //
     Rcpp::List RListReturn = CBGA.RListReturn();
     return RListReturn;
 }
+
