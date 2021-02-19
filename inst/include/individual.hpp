@@ -20,6 +20,7 @@ private:
     double age_scaling(
             const double & age
     );
+    
     double mutation_scaling(
             const int & n_mutations
     );
@@ -44,6 +45,7 @@ public:
     double calculate_fitness(
             const arma::colvec & parameters
     );
+    
     double calculate_fitness_scaled(
             const double & fitness, 
             const double & age,
