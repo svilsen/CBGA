@@ -4,7 +4,7 @@
 \alias{cbga}
 \title{Controlled Breeding Genetic Algorithm}
 \usage{
-cbga(f, lower, upper, bp = "proportional", control = list())
+cbga(f, lower, upper, bp = "proportional", ...)
 }
 \arguments{
 \item{f}{The function to be optimised by the algorithm.}
@@ -15,7 +15,7 @@ cbga(f, lower, upper, bp = "proportional", control = list())
 
 \item{bp}{A string, or \link{bp}-object, defining the breeding protocol used in the genetic algorithm. See details for more information on allowed pre-sets supplied as strings, and \link{set_bp} for more information on possible breeding protocols.}
 
-\item{control}{A list of control parameters used in the genetic algorithm. See \link{cbga.control} for more information.}
+\item{...}{Additional control parameters used in the genetic algorithm. See \link{cbga.control} for more information.}
 }
 \value{
 The fittest individual found by the genetic algorithm, arranged in the list containing the following:

@@ -3,6 +3,7 @@
 
 #include "rv.hpp"
 #include "individual.hpp"
+#include "utility.hpp"
 
 //// Fitness
 // Constructor
@@ -68,7 +69,7 @@ double Fitness::calculate_fitness_scaled(
 //// Population 
 // Constructor
 Population::Population(
-    const int & _n_population, 
+    const std::vector<int> & _n_population, 
     const int & _n_genome,
     const std::vector<int> _n_chromosomes,
     Fitness & _fitness, 
@@ -78,21 +79,30 @@ Population::Population(
     n_genome(_n_genome),
     n_chromosomes(_n_chromosomes)
 {
-    p_active = std::vector<Individual>(n_population);
-    p_litter = std::vector<Individual>(n_population);
+    int K = n_population.size();
+    int n_population_sum = std_vector_sum(n_population, K);
     
-    for (int n = 0; n < n_population; n++) 
+    p_active = std::vector<std::vector<Individual>>(K);
+    p_litter = std::vector<Individual>(n_population_sum);
+    
+    for (int k = 0; k < K; k++) 
     {
-        Individual individual(
-                n_genome, 
-                n_chromosomes, 
-                _fitness, 
-                _random_variate
-        );
+        int N = n_population[k];
+        std::vector<Individual> p_active_k = std::vector<Individual>(N);
+        for (int n = 0; n < N; n++) 
+        {
+            Individual individual(
+                    n_genome, 
+                    n_chromosomes, 
+                    _fitness, 
+                    _random_variate
+            );
+            
+            p_active_k[n] = individual;
+            p_litter[k * N + n] = individual;
+        }
         
-        p_active[n] = individual;
-        
-        p_litter[n] = individual;
+        p_active[k] = p_active_k;
     }
     
     update_population_entropy();
@@ -100,39 +110,44 @@ Population::Population(
 
 void Population::update_population_entropy()
 {
-    population_entropy = 0.0;
-    for (int i = 0; i < n_genome; i++) 
+    population_entropy = std::vector<double>(n_population.size());
+    for (int k = 0; k < n_population.size(); k++) 
     {
-        const int & n_chromosomes_i = n_chromosomes[i];
-        for (int j = 0; j < n_chromosomes_i; j++)
+        double population_entropy_k = 0.0;
+        for (int i = 0; i < n_genome; i++) 
         {
-            double n_ij = 1.0;
-            for (int k = 0; k < n_population; k++) 
+            const int & n_chromosomes_i = n_chromosomes[i];
+            for (int j = 0; j < n_chromosomes_i; j++)
             {
-                n_ij += p_active[k].chromosomes[i][j];
+                double n_kij = 1.0;
+                for (int n = 0; n < n_population[k]; n++) 
+                {
+                    n_kij += p_active[k][n].chromosomes[i][j];
+                }
+                
+                const double p_kij = n_kij / (n_population[k] + 1.0);
+                const double e_kij = -p_kij * std::log(p_kij);
+                population_entropy_k += e_kij;
             }
-            
-            const double p_ij = n_ij / (n_population + 1.0);
-            const double e_ij = -p_ij * std::log(p_ij);
-            population_entropy += e_ij;
         }
+        
+        population_entropy[k] = population_entropy_k;
     }
 }
 
 arma::colvec Population::accumulated_proportional_fitness(
         const std::vector<Individual> & p
 ) {
-    arma::colvec accumulated_fitness(
-            n_population
-    );
+    int N = p.size();
+    arma::colvec accumulated_fitness(N);
     
     accumulated_fitness[0] = p[0].fitness_scaled;
-    for (int n = 1; n < n_population; n++)
+    for (int n = 1; n < N; n++)
     {
         accumulated_fitness[n] = accumulated_fitness[n - 1] + p[n].fitness_scaled;
     }
     
-    return accumulated_fitness / accumulated_fitness[n_population - 1];
+    return accumulated_fitness / accumulated_fitness[N - 1];
 }
 
 //// Individual

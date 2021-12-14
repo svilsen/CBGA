@@ -122,9 +122,7 @@ void CBGAR::run()
             Individual C = population.p_litter[m];
             
             //
-            Individual I1 = parent_selection(
-                accumulated_fitness_active
-            );
+            Individual I1 = best_individual;
             
             Individual I2 = parent_selection(
                 accumulated_fitness_active

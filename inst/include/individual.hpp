@@ -20,6 +20,7 @@ private:
     double age_scaling(
             const double & age
     );
+    
     double mutation_scaling(
             const int & n_mutations
     );
@@ -44,6 +45,7 @@ public:
     double calculate_fitness(
             const arma::colvec & parameters
     );
+    
     double calculate_fitness_scaled(
             const double & fitness, 
             const double & age,
@@ -84,6 +86,7 @@ public:
             const double & u, 
             const int & N
     );
+    
     void decode_individual(
             Fitness & fitness,
             const std::vector<int> & n_chromosomes, 
@@ -96,23 +99,24 @@ class Population
 {
 public:
     // Objects
-    int n_population;
+    std::vector<int> n_population;
     int n_genome;
     std::vector<int> n_chromosomes;
     
-    std::vector<Individual> p_active;
+    std::vector<std::vector<Individual>> p_active;
     std::vector<Individual> p_litter;
-    double population_entropy;
+    std::vector<double> population_entropy;
     
     // Constructors
     Population(
-        const int & _n_population, 
+        const std::vector<int> & _n_population, 
         const int & _n_genome, 
         const std::vector<int> _n_chromosomes, 
         Fitness & _fitness, RV & _random_variate
     );
     
     void update_population_entropy();
+    
     arma::colvec accumulated_proportional_fitness(
             const std::vector<Individual> & p
     );

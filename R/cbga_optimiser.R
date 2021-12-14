@@ -3,7 +3,7 @@
 #' @description \code{cbga.control} creates a list of all parameters needed to run the genetic algorithm. 
 #' 
 #' @param n_lifetime The number of iterations of the genetic algorithm.
-#' @param n_population The number of individuals in both the active and inactive populations.
+#' @param n_population A vector setting number of individuals in the active populations (the size of the inactive population is the sum this vector).
 #' @param n_chromosomes A vector setting the length of the bitstrings used for each individual (the length of the bitstrings relates to the precision of the optimisation).
 #' @param pi_mutation The probability of mutation.
 #' @param pi_recombination The probability of recombination.
@@ -76,7 +76,7 @@ cbga.control <- function(
 #' @param lower A vector of lower bounds.
 #' @param upper A vector of upper bounds.
 #' @param bp A string, or \link{bp}-object, defining the breeding protocol used in the genetic algorithm. See details for more information on allowed pre-sets supplied as strings, and \link{set_bp} for more information on possible breeding protocols.
-#' @param control A list of control parameters used in the genetic algorithm. See \link{cbga.control} for more information.
+#' @param ... Additional control parameters used in the genetic algorithm. See \link{cbga.control} for more information.
 #' 
 #' @details The following breeding protocols...
 #' 
@@ -98,8 +98,9 @@ cbga <- function(
     lower, 
     upper, 
     bp = "proportional", 
-    control = list()
+    ...
 ) {
+    control <- list(...)
     ga_pars <- do.call(cbga.control, control)
     if (length(lower) != length(upper)) {
         stop("The 'lower' and 'upper' bounds have to be the same length.")
@@ -120,18 +121,20 @@ cbga <- function(
     }
     
     if (tolower(bp) %in% c("p", "prop", "proportional")) {
-        res <- cbga_proportional(f = f, 
-                                 lower = matrix(lower, ncol = 1), 
-                                 upper = matrix(upper, ncol = 1), 
-                                 n_lifetime = ga_pars$n_lifetime, 
-                                 n_population = ga_pars$n_population, 
-                                 n_chromosomes = matrix(ga_pars$n_chromosomes, ncol = 1), 
-                                 pi_mutation = ga_pars$pi_mutation, 
-                                 pi_recombination = ga_pars$pi_recombination, 
-                                 max_lifespan = ga_pars$max_lifespan,
-                                 s_age = ga_pars$s_age, 
-                                 s_mutation = ga_pars$s_mutation, 
-                                 trace = ga_pars$trace)
+        res <- cbga_proportional(
+            f = f, 
+            lower = matrix(lower, ncol = 1), 
+            upper = matrix(upper, ncol = 1), 
+            n_lifetime = ga_pars$n_lifetime, 
+            n_population = ga_pars$n_population, 
+            n_chromosomes = matrix(ga_pars$n_chromosomes, ncol = 1), 
+            pi_mutation = ga_pars$pi_mutation, 
+            pi_recombination = ga_pars$pi_recombination, 
+            max_lifespan = ga_pars$max_lifespan,
+            s_age = ga_pars$s_age, 
+            s_mutation = ga_pars$s_mutation, 
+            trace = ga_pars$trace
+        )
     }
     else {
         stop(paste0("The supplied breeding protocol is not a valid. See details of '?cbga' and '?set_bp' for more information."))

@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // cbga_proportional
 Rcpp::List cbga_proportional(Rcpp::Function& f, const arma::colvec& lower, const arma::colvec& upper, const int& n_lifetimes, const int& n_population, const std::vector<int> n_chromosomes, const double& pi_mutation, const double& pi_recombination, const int& max_lifespan, const double& s_age, const double& s_mutation, const int& trace);
 RcppExport SEXP _CBGA_cbga_proportional(SEXP fSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP n_lifetimesSEXP, SEXP n_populationSEXP, SEXP n_chromosomesSEXP, SEXP pi_mutationSEXP, SEXP pi_recombinationSEXP, SEXP max_lifespanSEXP, SEXP s_ageSEXP, SEXP s_mutationSEXP, SEXP traceSEXP) {
