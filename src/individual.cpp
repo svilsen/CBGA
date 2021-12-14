@@ -30,7 +30,7 @@ double Fitness::age_scaling(
         const double & age
 ) {
     double age_scaled = s_age * age * (1.0 - age);
-    if (age_scaled > 1.0) 
+    if ((age_scaled > 1.0) || (s_age == 0)) 
     {
         age_scaled = 1.0;
     }
