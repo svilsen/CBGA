@@ -19,7 +19,7 @@
 #' 
 #' @export
 cbga.control <- function(
-    n_lifetime = 100, 
+    n_lifetime = 1000, 
     n_population = c(10, 10, 10, 10, 10, 10), 
     n_chromosomes = NULL,
     pi_mutation = NULL, 
@@ -36,6 +36,10 @@ cbga.control <- function(
     
     if (is.null(n_population) || !is.numeric(n_population)) {
         n_population <- c(10, 10, 10, 10, 10, 10)
+    }
+    
+    if (is.null(n_chromosomes)|| !is.numeric(n_chromosomes)) {
+        n_chromosomes <- 20
     }
     
     if (is.null(s_age) || !is.numeric(s_age) || (s_age < 0)) {
@@ -87,9 +91,9 @@ cbga.control <- function(
 #' 
 #' @examples 
 #' \dontrun{
-#' f <- function(x) exp(-x^2)
-#' lower <- -1
-#' upper <- 1
+#' f <- function(x) exp(-sum(x)^2)
+#' lower <- rep(-1, 3)
+#' upper <- rep(1, 3)
 #' 
 #' cbga(f, lower, upper)
 #' }
@@ -109,11 +113,13 @@ cbga <- function(
         stop("The 'lower' and 'upper' bounds have to be the same length.")
     }
     
-    if (is.null(control$n_chromosomes)) {
-        control$n_chromosomes <- rep(10, length(lower))
-    }
     if (length(lower) != length(control$n_chromosomes)) {
-        stop("'n_chromosomes' needs to have the same length as the bounds.")
+        if (length(control$n_chromosomes) == 1) {
+            control$n_chromosomes <- rep(control$n_chromosomes, length(lower))
+        }
+        else {
+            stop("'n_chromosomes' needs to have the same length as the bounds.")
+        }
     }
     
     if (is.null(control$pi_mutation)) {

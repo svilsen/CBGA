@@ -6,7 +6,7 @@
 \usage{
 cbga.control(
   n_lifetime = 100,
-  n_population = c(100, 100, 100),
+  n_population = c(10, 10, 10, 10, 10, 10),
   n_chromosomes = NULL,
   pi_mutation = NULL,
   pi_recombination = NULL,
