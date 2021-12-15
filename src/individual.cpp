@@ -79,15 +79,20 @@ Population::Population(
     n_genome(_n_genome),
     n_chromosomes(_n_chromosomes)
 {
-    int K = n_population.size();
-    int n_population_sum = std_vector_sum(n_population, K);
+    //
+    n_population_accumulate = std_vector_accumulate(n_population); 
     
+    int K = n_population.size();
+    int n_population_sum = n_population_accumulate[K];
+    
+    p_best = std::vector<Individual>(K);
     p_active = std::vector<std::vector<Individual>>(K);
     p_litter = std::vector<Individual>(n_population_sum);
     
     for (int k = 0; k < K; k++) 
     {
         int N = n_population[k];
+        Individual p_best_k;
         std::vector<Individual> p_active_k = std::vector<Individual>(N);
         for (int n = 0; n < N; n++) 
         {
@@ -99,10 +104,15 @@ Population::Population(
             );
             
             p_active_k[n] = individual;
-            p_litter[k * N + n] = individual;
+            p_litter[n_population_accumulate[k] + n] = individual;
+            
+            if ((n == 0) || (individual.fitness_scaled > p_best_k.fitness_scaled)) {
+                p_best_k = individual;
+            }
         }
         
         p_active[k] = p_active_k;
+        p_best[k] = p_best_k;
     }
     
     update_population_entropy();
@@ -110,7 +120,7 @@ Population::Population(
 
 void Population::update_population_entropy()
 {
-    population_entropy = std::vector<double>(n_population.size());
+    population_entropy = arma::colvec(n_population.size());
     for (int k = 0; k < n_population.size(); k++) 
     {
         double population_entropy_k = 0.0;
@@ -151,13 +161,14 @@ arma::colvec Population::accumulated_proportional_fitness(
 }
 
 //// Individual
-// Constrctors
+// Constructors
 Individual::Individual() 
 {
     n_mutations = 0;
     
     age = 0.0;
     fitness = -HUGE_VAL;
+    fitness_scaled = -HUGE_VAL;
 }
 
 Individual::Individual(

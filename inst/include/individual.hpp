@@ -100,12 +100,14 @@ class Population
 public:
     // Objects
     std::vector<int> n_population;
+    std::vector<int> n_population_accumulate;
     int n_genome;
     std::vector<int> n_chromosomes;
     
+    std::vector<Individual> p_best;
     std::vector<std::vector<Individual>> p_active;
     std::vector<Individual> p_litter;
-    std::vector<double> population_entropy;
+    arma::colvec population_entropy;
     
     // Constructors
     Population(

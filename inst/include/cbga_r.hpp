@@ -10,20 +10,22 @@ class CBGAR
 { 
 private:
     // Objects
-    Fitness fitness;
-    
-    Population population;
     RV random_variate;
+    Fitness fitness;
+    Population population;
     
     double pi_recombination;
     double pi_mutation;
+    
+    int breeding_rotation_rate;
+    arma::colvec breeding_rotation;
     
     int max_lifespan;
     int n_lifetime;
     int trace;
     
     // Parent selection
-    Individual parent_selection(
+    int parent_selection(
             const arma::colvec & accumulated_fitness
     );
     
@@ -35,10 +37,9 @@ private:
     );
     
     // Litter selection
-    Individual litter_selection(
+    int litter_selection(
             const arma::colvec & accumulated_fitness
     );
-    
     
 public:
     // Objects
@@ -52,6 +53,8 @@ public:
         const double & _pi_mutation, 
         const int & _max_lifespan, 
         Population & _population,
+        const int & _breeding_rotation_rate,
+        const arma::colvec & _breeding_rotation,
         RV & _random_variate, 
         const int & _trace
     );

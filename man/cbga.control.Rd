@@ -6,20 +6,21 @@
 \usage{
 cbga.control(
   n_lifetime = 100,
-  n_population = 100,
+  n_population = c(100, 100, 100),
   n_chromosomes = NULL,
   pi_mutation = NULL,
   pi_recombination = NULL,
   s_age = 4,
   s_mutation = 1,
   max_lifespan = 10,
+  selection_type = "proportional",
   trace = 0
 )
 }
 \arguments{
 \item{n_lifetime}{The number of iterations of the genetic algorithm.}
 
-\item{n_population}{The number of individuals in both the active and inactive populations.}
+\item{n_population}{A vector setting number of individuals in the active populations (the size of the inactive population is the sum this vector).}
 
 \item{n_chromosomes}{A vector setting the length of the bitstrings used for each individual (the length of the bitstrings relates to the precision of the optimisation).}
 
@@ -32,6 +33,8 @@ cbga.control(
 \item{s_mutation}{A scaling factor for the effect of the number of mutations on the fitness (> 0).}
 
 \item{max_lifespan}{The maximum lifespan of an individual (0 < \code{max_lifespan} < \code{n_lifetime}).}
+
+\item{selection_type}{A character string setting the type of selection used in litter, and active population selection (default is \code{"proportional"}).}
 
 \item{trace}{An integer between 0 and \code{n_lifetime}. If zero then trace is not shown. If larger than 0, then a trace is shown every \code{trace} iterations.}
 }
