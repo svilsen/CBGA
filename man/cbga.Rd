@@ -25,9 +25,9 @@ The fittest individual found by the genetic algorithm, arranged in the list cont
 }
 \examples{
 \dontrun{
-f <- function(x) exp(-x^2)
-lower <- -1
-upper <- 1
+f <- function(x) exp(-sum(x)^2)
+lower <- rep(-1, 3)
+upper <- rep(1, 3)
 
 cbga(f, lower, upper)
 }

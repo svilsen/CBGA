@@ -5,7 +5,7 @@
 \title{Controlled Breeding Genetic Algorithm Control}
 \usage{
 cbga.control(
-  n_lifetime = 100,
+  n_lifetime = 1000,
   n_population = c(10, 10, 10, 10, 10, 10),
   n_chromosomes = NULL,
   pi_mutation = NULL,
